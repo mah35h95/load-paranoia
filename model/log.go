@@ -2,6 +2,11 @@ package model
 
 import "time"
 
+const (
+	OrderByAsc  string = "timestamp asc"
+	OrderByDesc string = "timestamp desc"
+)
+
 type LoggingRequest struct {
 	ProjectIDS    []string `json:"projectIds,omitempty"`
 	ResourceNames []string `json:"resourceNames,omitempty"`

@@ -48,9 +48,9 @@ func getLogEntries(logProjectID, filter, pageToken, bearer string) ([]model.Entr
 
 	loggingRequest := model.LoggingRequest{
 		ProjectIDS:    []string{logProjectID},
-		ResourceNames: []string{"projects/" + logProjectID},
+		ResourceNames: []string{fmt.Sprintf("projects/%s", logProjectID)},
 		Filter:        filter,
-		OrderBy:       "timestamp desc",
+		OrderBy:       model.OrderByDesc,
 		PageSize:      math.MaxInt32,
 		PageToken:     pageToken,
 	}
