@@ -15,7 +15,7 @@ func GetTableResultLogs(logProjectID, projectID, datasetID, tableID, bearer, fro
 	allLogEntries := []model.Entry{}
 
 	filter := fmt.Sprintf(
-		"protoPayload.authenticationInfo.principalEmail=\"svc-dbt-worker@prod-2763-entdatawh-bb5597.iam.gserviceaccount.com\" AND protoPayload.methodName=\"jobservice.getqueryresults\" AND protoPayload.serviceData.jobGetQueryResultsResponse.job.jobConfiguration.query.destinationTable.projectId=\"%s\" AND protoPayload.serviceData.jobGetQueryResultsResponse.job.jobConfiguration.query.destinationTable.datasetId=\"%s\" AND protoPayload.serviceData.jobGetQueryResultsResponse.job.jobConfiguration.query.destinationTable.tableId=\"%s\" AND protoPayload.serviceData.jobGetQueryResultsResponse.job.jobStatistics.queryOutputRowCount:*  AND timestamp > \"%s\" AND timestamp < \"%s\"",
+		"protoPayload.authenticationInfo.principalEmail=\"svc-dbt-worker@prod-2763-entdatawh-bb5597.iam.gserviceaccount.com\" AND protoPayload.methodName=\"jobservice.getqueryresults\" AND protoPayload.serviceData.jobGetQueryResultsResponse.job.jobConfiguration.query.destinationTable.projectId=\"%s\" AND protoPayload.serviceData.jobGetQueryResultsResponse.job.jobConfiguration.query.destinationTable.datasetId=\"%s\" AND protoPayload.serviceData.jobGetQueryResultsResponse.job.jobConfiguration.query.destinationTable.tableId=\"%s\" AND protoPayload.serviceData.jobGetQueryResultsResponse.job.jobStatistics.queryOutputRowCount:*  AND timestamp >= \"%s\" AND timestamp < \"%s\"",
 		projectID,
 		datasetID,
 		tableID,
