@@ -3,6 +3,7 @@ package gcp
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"load_paranoia/model"
 
@@ -41,22 +42,45 @@ func (bq *BqClient) CloseBigQueryClient() {
 }
 
 // RunQuery - Run the query provided in Big Query
-func (bq *BqClient) RunIntervalRowCountQuery(projectID, datasetID, tableID, from, to string) []model.IntervalRowCountResult {
+func (bq *BqClient) RunIntervalRowCountQuery(projectID, datasetID, from, to string, table model.TableDetails) []model.IntervalRowCountResult {
 	rowCountIntervals := []model.IntervalRowCountResult{}
 
-	queryString := fmt.Sprintf(`SELECT
+	// 	queryString := fmt.Sprintf(`SELECT
+	//   UNIX_MILLIS(TIMESTAMP_SECONDS(DIV(UNIX_SECONDS(recordstamp), 900) * 900 )) AS timestamp,
+	//   COUNT(*) AS effectedRowCount
+	// FROM
+	//   %s
+	// WHERE
+	//   recordstamp >= "%s"
+	//   AND recordstamp < "%s"
+	// GROUP BY
+	//   timestamp
+	// ORDER BY
+	//   timestamp desc;`,
+	// 		fmt.Sprintf("`%s.%s.%s`", projectID, datasetID, tableID),
+	// 		from,
+	// 		to,
+	// 	)
+
+	queryString := fmt.Sprintf(`WITH latest_records AS (
+  SELECT * FROM %s
+QUALIFY ROW_NUMBER() OVER (PARTITION BY %s ORDER BY recordstamp DESC) = 1
+)
+
+SELECT
   UNIX_MILLIS(TIMESTAMP_SECONDS(DIV(UNIX_SECONDS(recordstamp), 900) * 900 )) AS timestamp,
   COUNT(*) AS effectedRowCount
-FROM
-  %s
+FROM latest_records
+  
 WHERE
   recordstamp >= "%s"
   AND recordstamp < "%s"
 GROUP BY
   timestamp
 ORDER BY
-  timestamp desc;`,
-		fmt.Sprintf("`%s.%s.%s`", projectID, datasetID, tableID),
+  timestamp desc`,
+		fmt.Sprintf("`%s.%s.%s`", projectID, datasetID, table.TableID),
+		strings.Join(table.Columns, ","),
 		from,
 		to,
 	)

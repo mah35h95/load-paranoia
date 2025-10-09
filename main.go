@@ -7,6 +7,7 @@ import (
 
 	"load_paranoia/auth"
 	"load_paranoia/gcp"
+	"load_paranoia/model"
 	"load_paranoia/utils"
 )
 
@@ -21,17 +22,22 @@ func main() {
 	stageProjectID := "prod-2434-entdataingest-05104f"
 	stageDatasetID := "S4HANA"
 
-	dbtTableIDs := []string{"afko"}
+	tableDetails := []model.TableDetails{
+		{
+			TableID: "afko",
+			Columns: []string{"mandt", "aufnr"},
+		},
+	}
 
 	logProjectID := "prod-2763-entdatawh-bb5597"
 
 	from := time.Now().AddDate(0, 0, -2).Format(time.RFC3339)
-	to := time.Now().AddDate(0, 0, 1).Format(time.RFC3339)
+	to := time.Now().AddDate(0, 0, -1).Format(time.RFC3339)
 
-	chunkTableIDs := utils.ChunkJobs(dbtTableIDs, chunkSize)
+	chunkTableDetails := utils.ChunkJobs(tableDetails, chunkSize)
 
-	for i := range chunkTableIDs {
-		tableIDs := chunkTableIDs[i]
+	for i := range chunkTableDetails {
+		tableDetail := chunkTableDetails[i]
 
 		fmt.Println("Fetching Access Token...")
 		assesBearer := auth.GetAccessToken()
@@ -44,12 +50,12 @@ func main() {
 		defer bqClient.CloseBigQueryClient()
 
 		wg := sync.WaitGroup{}
-		for j := range tableIDs {
-			tableID := tableIDs[j]
-			fmt.Printf("(%d/%d): %s - Start Log & BQ\n", (chunkSize*i)+j+1, len(dbtTableIDs), tableID)
+		for j := range tableDetail {
+			table := tableDetail[j]
+			fmt.Printf("(%d/%d): %s - Start Log & BQ\n", (chunkSize*i)+j+1, len(tableDetails), table.TableID)
 
 			wg.Go(func() {
-				dbtTableID := fmt.Sprintf("%s_current_v1", tableID)
+				dbtTableID := fmt.Sprintf("%s_current_v1", table.TableID)
 				tableLogs := gcp.GetTableResultLogs(
 					logProjectID,
 					dbtProjectID,
@@ -62,33 +68,33 @@ func main() {
 				data := utils.CombineQueryOutputRowCount(tableLogs)
 
 				err := utils.WriteToFile(
-					fmt.Sprintf("./output/%s_log.csv", tableID),
+					fmt.Sprintf("./output/%s_log.csv", table.TableID),
 					[]byte(data),
 				)
 				if err != nil {
 					fmt.Println("Error writing file:", err)
 					return
 				}
-				fmt.Printf("Data written successfully for log-%s\n", tableID)
+				fmt.Printf("Data written successfully for log-%s\n", table.TableID)
 
-				fmt.Printf("(%d/%d): %s - Complete Log\n", (chunkSize*i)+j+1, len(dbtTableIDs), tableID)
+				fmt.Printf("(%d/%d): %s - Complete Log\n", (chunkSize*i)+j+1, len(tableDetails), table.TableID)
 			})
 
 			wg.Go(func() {
-				tableInterval := bqClient.RunIntervalRowCountQuery(stageProjectID, stageDatasetID, tableID, from, to)
+				tableInterval := bqClient.RunIntervalRowCountQuery(stageProjectID, stageDatasetID, from, to, table)
 				data := utils.CombineRowIntervalCount(tableInterval)
 
 				err := utils.WriteToFile(
-					fmt.Sprintf("./output/%s_bq.csv", tableID),
+					fmt.Sprintf("./output/%s_bq.csv", table.TableID),
 					[]byte(data),
 				)
 				if err != nil {
 					fmt.Println("Error writing file:", err)
 					return
 				}
-				fmt.Printf("Data written successfully for bq-%s\n", tableID)
+				fmt.Printf("Data written successfully for bq-%s\n", table.TableID)
 
-				fmt.Printf("(%d/%d): %s - Complete BQ\n", (chunkSize*i)+j+1, len(dbtTableIDs), tableID)
+				fmt.Printf("(%d/%d): %s - Complete BQ\n", (chunkSize*i)+j+1, len(tableDetails), table.TableID)
 			})
 		}
 
