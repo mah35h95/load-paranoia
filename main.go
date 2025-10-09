@@ -13,6 +13,7 @@ import (
 
 func main() {
 	fmt.Println("Paranoia eradicator starting...")
+	diceProject := "prod-2367-entdataingst-7010d5"
 
 	chunkSize := 5
 
@@ -42,7 +43,7 @@ func main() {
 		fmt.Println("Fetching Access Token...")
 		assesBearer := auth.GetAccessToken()
 
-		bqClient, err := gcp.NewBigQueryClient(stageProjectID)
+		bqClient, err := gcp.NewBigQueryClient(diceProject)
 		if err != nil {
 			fmt.Println("BQ Client Failed:", err)
 			return
