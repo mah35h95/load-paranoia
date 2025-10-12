@@ -7,6 +7,14 @@ const (
 	OrderByDesc string = "timestamp desc"
 )
 
+type QueryLog struct {
+	OutputRowCount string
+	TimestampFrom  time.Time
+	TimestampTo    time.Time
+	StartTime      time.Time
+	EndTime        time.Time
+}
+
 type LoggingRequest struct {
 	ProjectIDS    []string `json:"projectIds,omitempty"`
 	ResourceNames []string `json:"resourceNames,omitempty"`
