@@ -1,0 +1,92 @@
+{
+	"protoPayload": {
+		"@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+		"status": {},
+		"authenticationInfo": {
+			"principalEmail": "svc-dbt-worker@prod-2763-entdatawh-bb5597.iam.gserviceaccount.com",
+			"serviceAccountKeyName": "//iam.googleapis.com/projects/prod-2763-entdatawh-bb5597/serviceAccounts/svc-dbt-worker@prod-2763-entdatawh-bb5597.iam.gserviceaccount.com/keys/1b6899735061f3eedd5870e4235d4db87cdcb62a"
+		},
+		"requestMetadata": {
+			"callerIp": "54.81.134.249",
+			"callerSuppliedUserAgent": "dbt-bigquery-1.11.0post7+f4dfd350942cce11ff25e3d22f2bee9e60b12b6d gl-python/3.11.13 grpc/1.75.1 gax/2.25.2 gapic/3.38.0 gccl/3.38.0,gzip(gfe)",
+			"requestAttributes": {},
+			"destinationAttributes": {}
+		},
+		"serviceName": "bigquery.googleapis.com",
+		"methodName": "jobservice.getqueryresults",
+		"authorizationInfo": [
+			{
+				"resource": "projects/prod-2763-entdatawh-bb5597",
+				"permission": "bigquery.jobs.create",
+				"granted": true,
+				"resourceAttributes": {}
+			}
+		],
+		"resourceName": "projects/prod-2763-entdatawh-bb5597/queries/dd24e4a9-6955-45ac-a360-8efc1a80ce25",
+		"serviceData": {
+			"@type": "type.googleapis.com/google.cloud.bigquery.logging.v1.AuditData",
+			"jobGetQueryResultsRequest": {},
+			"jobGetQueryResultsResponse": {
+				"job": {
+					"jobName": {
+						"projectId": "prod-2763-entdatawh-bb5597",
+						"jobId": "dd24e4a9-6955-45ac-a360-8efc1a80ce25",
+						"location": "US"
+					},
+					"jobConfiguration": {
+						"labels": {
+							"dbt_invocation_id": "a103766a-1942-473e-b05e-ab0bca712d40"
+						},
+						"query": {
+							"query": "/* {\"app\": \"dbt\", \"dbt_version\": \"2025.10.7+0581a5b\", \"profile_name\": \"user\", \"target_name\": \"prod\", \"node_id\": \"model.dbt_lake_transformations_sap.afko_p41_current.v1\"} */\n\n  \n    \n\n    create or replace table `prod-2134-entdatalake-5938ee`.`sap_s4_p41_lake`.`afko_current_v1__dbt_tmp`\n      \n    partition by timestamp_trunc(recordstamp, day)\n    cluster by recordstamp\n\n    \n    OPTIONS(\n      expiration_timestamp=TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 12 hour)\n    )\n    as (\n       \nselect  \n    concat(coalesce(mandt, ''),coalesce(aufnr, '')) as natural_primary_key,\n    \n        `mandt`as `mandt`,\n        `aufnr`as `aufnr`,\n        `gltrp`as `gltrp`,\n        `gstrp`as `gstrp`,\n        `ftrms`as `ftrms`,\n        `gltrs`as `gltrs`,\n        `gstrs`as `gstrs`,\n        `gstri`as `gstri`,\n        `getri`as `getri`,\n        `gltri`as `gltri`,\n        `ftrmi`as `ftrmi`,\n        `ftrmp`as `ftrmp`,\n        `rsnum`as `rsnum`,\n        `gasmg`as `gasmg`,\n        `gamng`as `gamng`,\n        `gmein`as `gmein`,\n        `plnbez`as `plnbez`,\n        `plnty`as `plnty`,\n        `plnnr`as `plnnr`,\n        `plnaw`as `plnaw`,\n        `plnal`as `plnal`,\n        `pverw`as `pverw`,\n        `plauf`as `plauf`,\n        `plsvb`as `plsvb`,\n        `plnme`as `plnme`,\n        `plsvn`as `plsvn`,\n        `pdatv`as `pdatv`,\n        `paenr`as `paenr`,\n        `plgrp`as `plgrp`,\n        `lodiv`as `lodiv`,\n        `stlty`as `stlty`,\n        `stlbez`as `stlbez`,\n        `stlst`as `stlst`,\n        `stlnr`as `stlnr`,\n        `sdatv`as `sdatv`,\n        `sbmng`as `sbmng`,\n        `sbmeh`as `sbmeh`,\n        `saenr`as `saenr`,\n        `stlal`as `stlal`,\n        `stlan`as `stlan`,\n        `slsvn`as `slsvn`,\n        `slsbs`as `slsbs`,\n        `aufld`as `aufld`,\n        `dispo`as `dispo`,\n        `aufpl`as `aufpl`,\n        `fevor`as `fevor`,\n        `fhori`as `fhori`,\n        `terkz`as `terkz`,\n        `redkz`as `redkz`,\n        `aprio`as `aprio`,\n        `ntzue`as `ntzue`,\n        `vorue`as `vorue`,\n        `profid`as `profid`,\n        `vorgz`as `vorgz`,\n        `sichz`as `sichz`,\n        `freiz`as `freiz`,\n        `upter`as `upter`,\n        `bedid`as `bedid`,\n        `pronr`as `pronr`,\n        `zaehl`as `zaehl`,\n        `mzaehl`as `mzaehl`,\n        `zkriz`as `zkriz`,\n        `prueflos`as `prueflos`,\n        `klvarp`as `klvarp`,\n        `klvari`as `klvari`,\n        `rgekz`as `rgekz`,\n        `plart`as `plart`,\n        `flg_aob`as `flg_aob`,\n        `flg_arbei`as `flg_arbei`,\n        `gltpp`as `gltpp`,\n        `gstpp`as `gstpp`,\n        `gltps`as `gltps`,\n        `gstps`as `gstps`,\n        `ftrps`as `ftrps`,\n        `rdkzp`as `rdkzp`,\n        `trkzp`as `trkzp`,\n        `rueck`as `rueck`,\n        `rmzhl`as `rmzhl`,\n        `igmng`as `igmng`,\n        `ratid`as `ratid`,\n        `groid`as `groid`,\n        `cuobj`as `cuobj`,\n        `gluzs`as `gluzs`,\n        `gsuzs`as `gsuzs`,\n        `revlv`as `revlv`,\n        `rshty`as `rshty`,\n        `rshid`as `rshid`,\n        `rsnty`as `rsnty`,\n        `rsnid`as `rsnid`,\n        `nauterm`as `nauterm`,\n        `naucost`as `naucost`,\n        `stufe`as `stufe`,\n        `wegxx`as `wegxx`,\n        `vwegx`as `vwegx`,\n        `arsnr`as `arsnr`,\n        `arsps`as `arsps`,\n        `maufnr`as `maufnr`,\n        `lknot`as `lknot`,\n        `rknot`as `rknot`,\n        `prodnet`as `prodnet`,\n        `iasmg`as `iasmg`,\n        `abarb`as `abarb`,\n        `aufnt`as `aufnt`,\n        `aufpt`as `aufpt`,\n        `aplzt`as `aplzt`,\n        `no_disp`as `no_disp`,\n        `csplit`as `csplit`,\n        `aennr`as `aennr`,\n        `cy_seqnr`as `cy_seqnr`,\n        `breaks`as `breaks`,\n        `vorgz_trm`as `vorgz_trm`,\n        `sichz_trm`as `sichz_trm`,\n        `trmdt`as `trmdt`,\n        `gluzp`as `gluzp`,\n        `gsuzp`as `gsuzp`,\n        `gsuzi`as `gsuzi`,\n        `geuzi`as `geuzi`,\n        `glupp`as `glupp`,\n        `gsupp`as `gsupp`,\n        `glups`as `glups`,\n        `gsups`as `gsups`,\n        `chsch`as `chsch`,\n        `kapt_vorgz`as `kapt_vorgz`,\n        `kapt_sichz`as `kapt_sichz`,\n        `lead_aufnr`as `lead_aufnr`,\n        `pnetstartd`as `pnetstartd`,\n        `pnetstartt`as `pnetstartt`,\n        `pnetendd`as `pnetendd`,\n        `pnetendt`as `pnetendt`,\n        `kbed`as `kbed`,\n        `kkalkr`as `kkalkr`,\n        `sfcpf`as `sfcpf`,\n        `rmnga`as `rmnga`,\n        `gsbtr`as `gsbtr`,\n        `vfmng`as `vfmng`,\n        `nopcost`as `nopcost`,\n        `netzkont`as `netzkont`,\n        `atrkz`as `atrkz`,\n        `objtype`as `objtype`,\n        `ch_proc`as `ch_proc`,\n        `kapversa`as `kapversa`,\n        `colordproc`as `colordproc`,\n        `kzerb`as `kzerb`,\n        `conf_key`as `conf_key`,\n        `st_arbid`as `st_arbid`,\n        `vsnmr_v`as `vsnmr_v`,\n        `terhw`as `terhw`,\n        `splstat`as `splstat`,\n        `costupd`as `costupd`,\n        `max_gamng`as `max_gamng`,\n        `mes_routingid`as `mes_routingid`,\n        `tl_versn`as `tl_versn`,\n        `bom_versn`as `bom_versn`,\n        `flexible_processing`as `flexible_processing`,\n        `extended_quality_checks`as `extended_quality_checks`,\n        `adpsp`as `adpsp`,\n        `rmanr`as `rmanr`,\n        `posnr_rma`as `posnr_rma`,\n        `posnv_rma`as `posnv_rma`,\n        `cfb_maxlz`as `cfb_maxlz`,\n        `cfb_lzeih`as `cfb_lzeih`,\n        `cfb_adtdays`as `cfb_adtdays`,\n        `cfb_datofm`as `cfb_datofm`,\n        `cfb_bbdpi`as `cfb_bbdpi`,\n        `oihantyp`as `oihantyp`,\n        `spmeat_pdaco`as `spmeat_pdaco`,\n        `spmeat_btcpr`as `spmeat_btcpr`,\n        `spmeat_wstgy`as `spmeat_wstgy`,\n        `spmeat_tpo`as `spmeat_tpo`,\n        `fsh_mprod_ord`as `fsh_mprod_ord`,\n        `flg_bundle`as `flg_bundle`,\n        `mill_ratio`as `mill_ratio`,\n        `bmeins`as `bmeins`,\n        `bmenge`as `bmenge`,\n        `mill_oc_zuskz`as `mill_oc_zuskz`,\n        `operation_flag`as `operation_flag`,\n        `is_deleted`as `is_deleted`,\n        `recordstamp`as `recordstamp`,\n    current_timestamp() as metadata_inserted_timestamp,\n    current_timestamp() as metadata_updated_timestamp,  \n    case\n        when operation_flag = 'D' then 1\n        when operation_flag = 'U' then 2\n        when operation_flag = 'I' then 3\n    else 4\n    end as operation_rank\nfrom `prod-2434-entdataingest-05104f`.`S4HANA`.`afko` a\n\n\n     \n    -- for SYSTEM_TIME as of TIMESTAMP_MILLIS(UNIX_MILLIS(TIMESTAMP '2025-10-12 17:18:29.026225+00:00'))\n    -- this filter will only be applied on an incremental run\n    \n        where recordstamp > '2025-10-12 17:13:35.131199+00:00' and recordstamp <= '2025-10-12 17:18:29.026225+00:00'\n    \n\n\nQUALIFY ROW_NUMBER() OVER (PARTITION BY natural_primary_key ORDER BY recordstamp DESC, operation_rank ASC) = 1\n    );\n  ",
+							"destinationTable": {
+								"projectId": "prod-2134-entdatalake-5938ee",
+								"datasetId": "sap_s4_p41_lake",
+								"tableId": "afko_current_v1__dbt_tmp"
+							},
+							"createDisposition": "CREATE_IF_NEEDED",
+							"writeDisposition": "WRITE_EMPTY",
+							"defaultDataset": {},
+							"queryPriority": "QUERY_INTERACTIVE",
+							"statementType": "CREATE_TABLE_AS_SELECT"
+						}
+					},
+					"jobStatus": {
+						"state": "DONE",
+						"error": {}
+					},
+					"jobStatistics": {
+						"createTime": "2025-10-12T17:20:30.605Z",
+						"startTime": "2025-10-12T17:20:30.856Z",
+						"endTime": "2025-10-12T17:20:48.523Z",
+						"totalProcessedBytes": "55581343",
+						"totalBilledBytes": "56623104",
+						"billingTier": 1,
+						"totalSlotMs": "10456",
+						"referencedTables": [
+							{
+								"projectId": "prod-2434-entdataingest-05104f",
+								"datasetId": "S4HANA",
+								"tableId": "afko"
+							}
+						],
+						"totalTablesProcessed": 1,
+						"queryOutputRowCount": "66",
+						"reservation": "prod-2384-entdatatransf-eea4ff:US.dbt-prod"
+					}
+				}
+			}
+		}
+	},
+	"insertId": "-k8okvme4u2bm",
+	"resource": {
+		"type": "bigquery_resource",
+		"labels": {
+			"project_id": "prod-2763-entdatawh-bb5597"
+		}
+	},
+	"timestamp": "2025-10-12T17:20:48.698474Z",
+	"severity": "INFO",
+	"logName": "projects/prod-2763-entdatawh-bb5597/logs/cloudaudit.googleapis.com%2Fdata_access",
+	"receiveTimestamp": "2025-10-12T17:20:49.096236962Z"
+}
