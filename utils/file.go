@@ -76,20 +76,18 @@ func extractTimestamp(match string) time.Time {
 }
 
 func CombineRowCount(queryLogs []model.QueryLog, intervalCounts []model.IntervalRowCountResult) string {
-	combined := "SLTLoadedRowCount,EffectedOutputRowCount,FromEpochMicro,ToEpochMicro,JobID,QueryStartEpochMicro,QueryEndEpochMicro,QueryFromEpochMicro,QueryToEpochMicro\n"
+	combined := "FromEpochMicro,ToEpochMicro,SLTLoadedRowCount,NewLakeLoadedRowCount,JobID,JobStartEpochMicro,JobEndEpochMicro\n"
 
 	for i := range queryLogs {
 		combined += fmt.Sprintf(
-			"%d,%s,%d,%d,%s,%d,%d,%d,%d\n",
+			"%s,%s,%d,%s,%s,%s,%s\n",
+			time.UnixMicro(queryLogs[i].From.UnixMicro()).UTC().Format(time.DateTime),
+			time.UnixMicro(queryLogs[i].To.UnixMicro()).UTC().Format(time.DateTime),
 			intervalCounts[i].EffectedRowCount.Int64,
 			queryLogs[i].OutputRowCount,
-			queryLogs[i].From.UnixMicro(),
-			queryLogs[i].To.UnixMicro(),
 			queryLogs[i].JobID,
-			queryLogs[i].StartTime.UnixMicro(),
-			queryLogs[i].EndTime.UnixMicro(),
-			queryLogs[i].TimestampFrom.UnixMicro(),
-			queryLogs[i].TimestampTo.UnixMicro(),
+			time.UnixMicro(queryLogs[i].StartTime.UnixMicro()).UTC().Format(time.DateTime),
+			time.UnixMicro(queryLogs[i].EndTime.UnixMicro()).UTC().Format(time.DateTime),
 		)
 	}
 

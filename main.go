@@ -25,15 +25,38 @@ func main() {
 
 	tableDetails := []model.TableDetails{
 		{
-			TableID: "afko",
-			Columns: []string{"mandt", "aufnr"},
+			TableID: "bseg",
+			Columns: []string{"mandt", "bukrs", "belnr", "gjahr", "buzei"},
+		},
+		{
+			TableID: "matdoc",
+			Columns: []string{"mandt", "key1", "key2", "key3", "key4", "key5", "key6"},
+		},
+		{
+			TableID: "mldoc",
+			Columns: []string{"mandt", "docref", "curtp"},
 		},
 	}
 
 	logProjectID := "prod-2763-entdatawh-bb5597"
 
-	from := time.Now().AddDate(0, 0, -1).Format(time.RFC3339)
-	to := time.Now().AddDate(0, 0, 0).Format(time.RFC3339)
+	// from := time.Now().AddDate(0, 0, -11).Format(time.RFC3339)
+	// to := time.Now().AddDate(0, 0, -7).Format(time.RFC3339)
+
+	fromParsed, err := time.Parse(time.RFC3339, "2025-09-30T21:00:00Z")
+	if err != nil {
+		fmt.Println("Error parsing from timestamp:", err)
+		return
+	}
+
+	toParsed, err := time.Parse(time.RFC3339, "2025-10-07T21:00:00Z")
+	if err != nil {
+		fmt.Println("Error parsing to timestamp:", err)
+		return
+	}
+
+	from := fromParsed.UTC().Format(time.RFC3339)
+	to := toParsed.UTC().Format(time.RFC3339)
 
 	chunkTableDetails := utils.ChunkJobs(tableDetails, chunkSize)
 
