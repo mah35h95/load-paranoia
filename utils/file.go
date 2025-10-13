@@ -63,17 +63,17 @@ func extractTimestamp(match string) time.Time {
 }
 
 func CombineQueryOutputRowCount(queryLogs []model.QueryLog) string {
-	combined := "JobID,OutputRowCount,EpochMicroTimestampFrom,EpochMicroTimestampTo,EpochMicroStartTime,EpochMicroEndTime\n"
+	combined := "OutputRowCount,EpochMicroFrom,EpochMicroTo,EpochMicroStart,EpochMicroEnd,JobID\n"
 
 	for _, queryLog := range queryLogs {
 		combined += fmt.Sprintf(
-			"%s,%s,%d,%d,%d,%d\n",
-			queryLog.JobID,
+			"%s,%d,%d,%d,%d,%s\n",
 			queryLog.OutputRowCount,
 			queryLog.TimestampFrom.UnixMicro(),
 			queryLog.TimestampTo.UnixMicro(),
 			queryLog.StartTime.UnixMicro(),
 			queryLog.EndTime.UnixMicro(),
+			queryLog.JobID,
 		)
 	}
 
@@ -81,14 +81,14 @@ func CombineQueryOutputRowCount(queryLogs []model.QueryLog) string {
 }
 
 func CombineRowIntervalCount(intervalCounts []model.IntervalRowCountResult) string {
-	combined := "epochMillis,timestamp,effectedRowCount\n"
+	combined := "EffectedRowCount,EpochMicroFrom,EpochMicroTo\n"
 
 	for _, intervalCount := range intervalCounts {
 		combined += fmt.Sprintf(
-			"%d,%s,%d\n",
-			intervalCount.Timestamp.Int64,
-			time.UnixMilli(intervalCount.Timestamp.Int64).UTC().Format(time.DateTime),
+			"%d,%d,%d\n",
 			intervalCount.EffectedRowCount.Int64,
+			intervalCount.FromTimestamp.Int64,
+			intervalCount.ToTimestamp.Int64,
 		)
 	}
 

@@ -20,8 +20,8 @@ func main() {
 	dbtProjectID := "prod-2134-entdatalake-5938ee"
 	dbtDatasetID := "sap_s4_p41_lake"
 
-	// stageProjectID := "prod-2434-entdataingest-05104f"
-	// stageDatasetID := "S4HANA"
+	stageProjectID := "prod-2434-entdataingest-05104f"
+	stageDatasetID := "S4HANA"
 
 	tableDetails := []model.TableDetails{
 		{
@@ -56,6 +56,7 @@ func main() {
 			fmt.Printf("(%d/%d): %s - Start Log & BQ\n", (chunkSize*i)+j+1, len(tableDetails), table.TableID)
 
 			wg.Go(func() {
+				// GCP Logs Data
 				dbtTableID := fmt.Sprintf("%s_current_v1__dbt_tmp", table.TableID)
 				tableLogs := gcp.GetTableResultLogs(
 					logProjectID,
@@ -67,11 +68,11 @@ func main() {
 					to,
 				)
 				tableQueryLogs := utils.GetQueryLogs(tableLogs)
-				data := utils.CombineQueryOutputRowCount(tableQueryLogs)
+				logData := utils.CombineQueryOutputRowCount(tableQueryLogs)
 
 				err := utils.WriteToFile(
 					fmt.Sprintf("./output/%s_log.csv", table.TableID),
-					[]byte(data),
+					[]byte(logData),
 				)
 				if err != nil {
 					fmt.Println("Error writing file:", err)
@@ -79,25 +80,27 @@ func main() {
 				}
 				fmt.Printf("Data written successfully for log-%s\n", table.TableID)
 
-				fmt.Printf("(%d/%d): %s - Complete Log\n", (chunkSize*i)+j+1, len(tableDetails), table.TableID)
+				// BQ Table Data
+				chunkQueries := gcp.GetChunkedQueries(stageProjectID, stageDatasetID, table, tableQueryLogs)
+				tableIntervals := []model.IntervalRowCountResult{}
+				for index, chunkQuery := range chunkQueries {
+					tableIntervals = append(tableIntervals, bqClient.RunIntervalRowCountQuery(chunkQuery)...)
+					fmt.Printf("%s: Fetched query result %d times\n", table.TableID, index+1)
+				}
+				queryData := utils.CombineRowIntervalCount(tableIntervals)
+
+				err = utils.WriteToFile(
+					fmt.Sprintf("./output/%s_bq.csv", table.TableID),
+					[]byte(queryData),
+				)
+				if err != nil {
+					fmt.Println("Error writing file:", err)
+					return
+				}
+				fmt.Printf("Data written successfully for bq-%s\n", table.TableID)
+
+				fmt.Printf("(%d/%d): %s - Completed Log & BQ\n", (chunkSize*i)+j+1, len(tableDetails), table.TableID)
 			})
-
-			// wg.Go(func() {
-			// 	tableInterval := bqClient.RunIntervalRowCountQuery(stageProjectID, stageDatasetID, from, to, table)
-			// 	data := utils.CombineRowIntervalCount(tableInterval)
-
-			// 	err := utils.WriteToFile(
-			// 		fmt.Sprintf("./output/%s_bq.csv", table.TableID),
-			// 		[]byte(data),
-			// 	)
-			// 	if err != nil {
-			// 		fmt.Println("Error writing file:", err)
-			// 		return
-			// 	}
-			// 	fmt.Printf("Data written successfully for bq-%s\n", table.TableID)
-
-			// 	fmt.Printf("(%d/%d): %s - Complete BQ\n", (chunkSize*i)+j+1, len(tableDetails), table.TableID)
-			// })
 		}
 
 		wg.Wait()

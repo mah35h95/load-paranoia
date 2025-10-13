@@ -42,33 +42,10 @@ func (bq *BqClient) CloseBigQueryClient() {
 }
 
 // RunQuery - Run the query provided in Big Query
-func (bq *BqClient) RunIntervalRowCountQuery(projectID, datasetID, from, to string, table model.TableDetails) []model.IntervalRowCountResult {
+func (bq *BqClient) RunIntervalRowCountQuery(intervalQuery string) []model.IntervalRowCountResult {
 	rowCountIntervals := []model.IntervalRowCountResult{}
 
-	queryString := fmt.Sprintf(`WITH latest_records AS (
-  SELECT * FROM %s
-QUALIFY ROW_NUMBER() OVER (PARTITION BY %s ORDER BY recordstamp DESC) = 1
-)
-
-SELECT
-  UNIX_MILLIS(TIMESTAMP_SECONDS(DIV(UNIX_SECONDS(recordstamp), 900) * 900 )) AS timestamp,
-  COUNT(*) AS effectedRowCount
-FROM latest_records
-  
-WHERE
-  recordstamp >= "%s"
-  AND recordstamp < "%s"
-GROUP BY
-  timestamp
-ORDER BY
-  timestamp desc`,
-		fmt.Sprintf("`%s.%s.%s`", projectID, datasetID, table.TableID),
-		strings.Join(table.Columns, ","),
-		from,
-		to,
-	)
-	query := bq.client.Query(queryString)
-
+	query := bq.client.Query(intervalQuery)
 	it, err := query.Read(bq.ctx)
 	if err != nil {
 		fmt.Println("Error executing query:", err)
@@ -89,4 +66,75 @@ ORDER BY
 	}
 
 	return rowCountIntervals
+}
+
+func GetChunkedQueries(projectID, datasetID string, table model.TableDetails, queryLogs []model.QueryLog) []string {
+	chunkQueries := []string{}
+
+	cteQueries := []string{}
+	selectQueries := []string{}
+
+	for index, queryLog := range queryLogs {
+		cteQuery, selectQuery := getIntervalRowCountCteAndQuery(index, projectID, datasetID, table, queryLog)
+
+		queryLength := len(
+			getCombinedIntervalRowCountQuery(
+				append(cteQueries, cteQuery),
+				append(selectQueries, selectQuery),
+			),
+		)
+
+		if queryLength > model.QueryMaxLength {
+			chunkQueries = append(chunkQueries, getCombinedIntervalRowCountQuery(cteQueries, selectQueries))
+
+			cteQueries = []string{cteQuery}
+			selectQueries = []string{selectQuery}
+			continue
+		}
+
+		cteQueries = append(cteQueries, cteQuery)
+		selectQueries = append(selectQueries, selectQuery)
+	}
+
+	chunkQueries = append(chunkQueries, getCombinedIntervalRowCountQuery(cteQueries, selectQueries))
+	return chunkQueries
+}
+
+func getIntervalRowCountCteAndQuery(
+	index int,
+	projectID,
+	datasetID string,
+	table model.TableDetails,
+	queryLogs model.QueryLog,
+) (string, string) {
+	return fmt.Sprintf(
+			`latest_records_%d AS (
+SELECT
+CASE
+ WHEN operation_flag = 'D' THEN 1
+ WHEN operation_flag = 'U' THEN 2
+ WHEN operation_flag = 'I' THEN 3
+ELSE 4
+END AS operation_rank FROM %s a
+WHERE recordstamp > TIMESTAMP_MICROS(%d) AND recordstamp <= TIMESTAMP_MICROS(%d)
+QUALIFY ROW_NUMBER() OVER (PARTITION BY %s ORDER BY recordstamp DESC, operation_rank ASC) = 1 )`,
+			index,
+			fmt.Sprintf("`%s.%s.%s`", projectID, datasetID, table.TableID),
+			queryLogs.TimestampFrom.UnixMicro(),
+			queryLogs.TimestampTo.UnixMicro(),
+			strings.Join(table.Columns, ","),
+		), fmt.Sprintf(
+			"SELECT COUNT(*) AS effectedRowCount, %d AS fromTimestamp, %d AS toTimestamp, FROM latest_records_%d\n",
+			queryLogs.TimestampFrom.UnixMicro(),
+			queryLogs.TimestampTo.UnixMicro(),
+			index,
+		)
+}
+
+func getCombinedIntervalRowCountQuery(cteQueries, selectQueries []string) string {
+	return fmt.Sprintf(
+		"WITH\n%s\n%sORDER BY fromTimestamp DESC",
+		strings.Join(cteQueries, ","),
+		strings.Join(selectQueries, "UNION ALL "),
+	)
 }
