@@ -1,5 +1,6 @@
 # Load Paranoia
-This script is a paranoia eradicator because [like The Marías say "your paranoia is ..."](https://music.youtube.com/watch?v=thB6wpwJYEk&t=1m18s)
+This script is a paranoia eradicator which aims to get proof to disregard the paranoia that "data load via dbt into new lake is not right"
+because [like The Marías say "your paranoia is ..."](https://music.youtube.com/watch?v=thB6wpwJYEk&t=1m18s)
 
 ## Run
 ### Pre-requisite
