@@ -96,5 +96,6 @@ func main() {
 		wg.Wait()
 	}
 
+	utils.CombineAllCSVIntoExcel("./output")
 	utils.PrintStuff()
 }
