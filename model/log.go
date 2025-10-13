@@ -8,6 +8,7 @@ const (
 )
 
 type QueryLog struct {
+	JobID          string
 	OutputRowCount string
 	TimestampFrom  time.Time
 	TimestampTo    time.Time
@@ -30,24 +31,24 @@ type LoggingResponce struct {
 }
 
 type Entry struct {
-	ProtoPayload     ProtoPayload `json:"protoPayload,omitempty"`
+	ProtoPayload     ProtoPayload `json:"protoPayload"`
 	InsertID         string       `json:"insertId,omitempty"`
-	Resource         Resource     `json:"resource,omitempty"`
-	Timestamp        time.Time    `json:"timestamp,omitempty"`
+	Resource         Resource     `json:"resource"`
+	Timestamp        time.Time    `json:"timestamp"`
 	Severity         string       `json:"severity,omitempty"`
 	LogName          string       `json:"logName,omitempty"`
-	ReceiveTimestamp time.Time    `json:"receiveTimestamp,omitempty"`
+	ReceiveTimestamp time.Time    `json:"receiveTimestamp"`
 }
 
 type ProtoPayload struct {
 	Type               string              `json:"@type,omitempty"`
-	AuthenticationInfo AuthenticationInfo  `json:"authenticationInfo,omitempty"`
-	RequestMetadata    RequestMetadata     `json:"requestMetadata,omitempty"`
+	AuthenticationInfo AuthenticationInfo  `json:"authenticationInfo"`
+	RequestMetadata    RequestMetadata     `json:"requestMetadata"`
 	ServiceName        string              `json:"serviceName,omitempty"`
 	MethodName         string              `json:"methodName,omitempty"`
 	AuthorizationInfo  []AuthorizationInfo `json:"authorizationInfo,omitempty"`
 	ResourceName       string              `json:"resourceName,omitempty"`
-	ServiceData        ServiceData         `json:"serviceData,omitempty"`
+	ServiceData        ServiceData         `json:"serviceData"`
 }
 
 type AuthenticationInfo struct {
@@ -68,23 +69,23 @@ type RequestMetadata struct {
 
 type ServiceData struct {
 	Type                       string                     `json:"@type,omitempty"`
-	JobGetQueryResultsResponse JobGetQueryResultsResponse `json:"jobGetQueryResultsResponse,omitempty"`
+	JobGetQueryResultsResponse JobGetQueryResultsResponse `json:"jobGetQueryResultsResponse"`
 }
 
 type JobGetQueryResultsResponse struct {
-	Job Job `json:"job,omitempty"`
+	Job Job `json:"job"`
 }
 
 type Job struct {
-	JobName          JobName          `json:"jobName,omitempty"`
-	JobConfiguration JobConfiguration `json:"jobConfiguration,omitempty"`
-	JobStatus        JobStatus        `json:"jobStatus,omitempty"`
-	JobStatistics    JobStatistics    `json:"jobStatistics,omitempty"`
+	JobName          JobName          `json:"jobName"`
+	JobConfiguration JobConfiguration `json:"jobConfiguration"`
+	JobStatus        JobStatus        `json:"jobStatus"`
+	JobStatistics    JobStatistics    `json:"jobStatistics"`
 }
 
 type JobConfiguration struct {
-	Labels JobConfigurationLabels `json:"labels,omitempty"`
-	Query  Query                  `json:"query,omitempty"`
+	Labels JobConfigurationLabels `json:"labels"`
+	Query  Query                  `json:"query"`
 }
 
 type JobConfigurationLabels struct {
@@ -93,7 +94,7 @@ type JobConfigurationLabels struct {
 
 type Query struct {
 	Query             string `json:"query,omitempty"`
-	DestinationTable  Table  `json:"destinationTable,omitempty"`
+	DestinationTable  Table  `json:"destinationTable"`
 	CreateDisposition string `json:"createDisposition,omitempty"`
 	WriteDisposition  string `json:"writeDisposition,omitempty"`
 	QueryPriority     string `json:"queryPriority,omitempty"`
@@ -113,9 +114,9 @@ type JobName struct {
 }
 
 type JobStatistics struct {
-	CreateTime           time.Time `json:"createTime,omitempty"`
-	StartTime            time.Time `json:"startTime,omitempty"`
-	EndTime              time.Time `json:"endTime,omitempty"`
+	CreateTime           time.Time `json:"createTime"`
+	StartTime            time.Time `json:"startTime"`
+	EndTime              time.Time `json:"endTime"`
 	TotalProcessedBytes  string    `json:"totalProcessedBytes,omitempty"`
 	TotalBilledBytes     string    `json:"totalBilledBytes,omitempty"`
 	BillingTier          int64     `json:"billingTier,omitempty"`
@@ -132,7 +133,7 @@ type JobStatus struct {
 
 type Resource struct {
 	Type   string         `json:"type,omitempty"`
-	Labels ResourceLabels `json:"labels,omitempty"`
+	Labels ResourceLabels `json:"labels"`
 }
 
 type ResourceLabels struct {

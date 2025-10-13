@@ -21,6 +21,7 @@ func GetQueryLogs(entries []model.Entry) []model.QueryLog {
 		fromTime, toTime := extractFromAndToTimestamp(entry.ProtoPayload.ServiceData.JobGetQueryResultsResponse.Job.JobConfiguration.Query.Query)
 
 		queryLog := model.QueryLog{
+			JobID:          entry.ProtoPayload.ServiceData.JobGetQueryResultsResponse.Job.JobName.JobID,
 			OutputRowCount: entry.ProtoPayload.ServiceData.JobGetQueryResultsResponse.Job.JobStatistics.QueryOutputRowCount,
 			TimestampFrom:  fromTime,
 			TimestampTo:    toTime,
@@ -62,20 +63,17 @@ func extractTimestamp(match string) time.Time {
 }
 
 func CombineQueryOutputRowCount(queryLogs []model.QueryLog) string {
-	combined := "OutputRowCount,EpochTimestampFrom,EpochTimestampTo,EpochStartTime,EpochEndTime,TimestampFrom,TimestampTo,StartTime,EndTime\n"
+	combined := "JobID,OutputRowCount,EpochMicroTimestampFrom,EpochMicroTimestampTo,EpochMicroStartTime,EpochMicroEndTime\n"
 
 	for _, queryLog := range queryLogs {
 		combined += fmt.Sprintf(
-			"%s,%d,%d,%d,%d,%s,%s,%s,%s\n",
+			"%s,%s,%d,%d,%d,%d\n",
+			queryLog.JobID,
 			queryLog.OutputRowCount,
-			queryLog.TimestampFrom.UnixMilli(),
-			queryLog.TimestampTo.UnixMilli(),
-			queryLog.StartTime.UnixMilli(),
-			queryLog.EndTime.UnixMilli(),
-			time.UnixMilli(queryLog.TimestampFrom.UnixMilli()).UTC().Format(time.DateTime),
-			time.UnixMilli(queryLog.TimestampTo.UnixMilli()).UTC().Format(time.DateTime),
-			time.UnixMilli(queryLog.StartTime.UnixMilli()).UTC().Format(time.DateTime),
-			time.UnixMilli(queryLog.EndTime.UnixMilli()).UTC().Format(time.DateTime),
+			queryLog.TimestampFrom.UnixMicro(),
+			queryLog.TimestampTo.UnixMicro(),
+			queryLog.StartTime.UnixMicro(),
+			queryLog.EndTime.UnixMicro(),
 		)
 	}
 
