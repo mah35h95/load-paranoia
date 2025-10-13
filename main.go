@@ -68,17 +68,6 @@ func main() {
 					to,
 				)
 				tableQueryLogs := utils.GetQueryLogs(tableLogs)
-				logData := utils.CombineQueryOutputRowCount(tableQueryLogs)
-
-				err := utils.WriteToFile(
-					fmt.Sprintf("./output/%s_log.csv", table.TableID),
-					[]byte(logData),
-				)
-				if err != nil {
-					fmt.Println("Error writing file:", err)
-					return
-				}
-				fmt.Printf("Data written successfully for log-%s\n", table.TableID)
 
 				// BQ Table Data
 				chunkQueries := gcp.GetChunkedQueries(stageProjectID, stageDatasetID, table, tableQueryLogs)
@@ -87,17 +76,18 @@ func main() {
 					tableIntervals = append(tableIntervals, bqClient.RunIntervalRowCountQuery(chunkQuery)...)
 					fmt.Printf("%s: Fetched query result %d times\n", table.TableID, index+1)
 				}
-				queryData := utils.CombineRowIntervalCount(tableIntervals)
 
-				err = utils.WriteToFile(
-					fmt.Sprintf("./output/%s_bq.csv", table.TableID),
-					[]byte(queryData),
+				// Write to csv
+				data := utils.CombineRowCount(tableQueryLogs, tableIntervals)
+				err := utils.WriteToFile(
+					fmt.Sprintf("./output/%s.csv", table.TableID),
+					[]byte(data),
 				)
 				if err != nil {
 					fmt.Println("Error writing file:", err)
 					return
 				}
-				fmt.Printf("Data written successfully for bq-%s\n", table.TableID)
+				fmt.Printf("Data written successfully for %s\n", table.TableID)
 
 				fmt.Printf("(%d/%d): %s - Completed Log & BQ\n", (chunkSize*i)+j+1, len(tableDetails), table.TableID)
 			})

@@ -23,12 +23,20 @@ func GetQueryLogs(entries []model.Entry) []model.QueryLog {
 		queryLog := model.QueryLog{
 			JobID:          entry.ProtoPayload.ServiceData.JobGetQueryResultsResponse.Job.JobName.JobID,
 			OutputRowCount: entry.ProtoPayload.ServiceData.JobGetQueryResultsResponse.Job.JobStatistics.QueryOutputRowCount,
+			From:           fromTime,
+			To:             toTime,
 			TimestampFrom:  fromTime,
 			TimestampTo:    toTime,
 			StartTime:      entry.ProtoPayload.ServiceData.JobGetQueryResultsResponse.Job.JobStatistics.StartTime,
 			EndTime:        entry.ProtoPayload.ServiceData.JobGetQueryResultsResponse.Job.JobStatistics.EndTime,
 		}
 		queryLogs = append(queryLogs, queryLog)
+	}
+
+	for i := 0; i < len(queryLogs)-1; i++ {
+		if queryLogs[i].From.UnixMicro() < queryLogs[i+1].To.UnixMicro() {
+			queryLogs[i+1].To = queryLogs[i].From
+		}
 	}
 
 	return queryLogs
@@ -62,33 +70,21 @@ func extractTimestamp(match string) time.Time {
 	return timestamp
 }
 
-func CombineQueryOutputRowCount(queryLogs []model.QueryLog) string {
-	combined := "OutputRowCount,EpochMicroFrom,EpochMicroTo,EpochMicroStart,EpochMicroEnd,JobID\n"
+func CombineRowCount(queryLogs []model.QueryLog, intervalCounts []model.IntervalRowCountResult) string {
+	combined := "SLTLoadedRowCount,EffectedOutputRowCount,FromEpochMicro,ToEpochMicro,JobID,QueryStartEpochMicro,QueryEndEpochMicro,QueryFromEpochMicro,QueryToEpochMicro\n"
 
-	for _, queryLog := range queryLogs {
+	for i := range queryLogs {
 		combined += fmt.Sprintf(
-			"%s,%d,%d,%d,%d,%s\n",
-			queryLog.OutputRowCount,
-			queryLog.TimestampFrom.UnixMicro(),
-			queryLog.TimestampTo.UnixMicro(),
-			queryLog.StartTime.UnixMicro(),
-			queryLog.EndTime.UnixMicro(),
-			queryLog.JobID,
-		)
-	}
-
-	return combined
-}
-
-func CombineRowIntervalCount(intervalCounts []model.IntervalRowCountResult) string {
-	combined := "EffectedRowCount,EpochMicroFrom,EpochMicroTo\n"
-
-	for _, intervalCount := range intervalCounts {
-		combined += fmt.Sprintf(
-			"%d,%d,%d\n",
-			intervalCount.EffectedRowCount.Int64,
-			intervalCount.FromTimestamp.Int64,
-			intervalCount.ToTimestamp.Int64,
+			"%d,%s,%d,%d,%s,%d,%d,%d,%d\n",
+			intervalCounts[i].EffectedRowCount.Int64,
+			queryLogs[i].OutputRowCount,
+			queryLogs[i].From.UnixMicro(),
+			queryLogs[i].To.UnixMicro(),
+			queryLogs[i].JobID,
+			queryLogs[i].StartTime.UnixMicro(),
+			queryLogs[i].EndTime.UnixMicro(),
+			queryLogs[i].TimestampFrom.UnixMicro(),
+			queryLogs[i].TimestampTo.UnixMicro(),
 		)
 	}
 

@@ -10,6 +10,8 @@ const (
 type QueryLog struct {
 	JobID          string
 	OutputRowCount string
+	From           time.Time
+	To             time.Time
 	TimestampFrom  time.Time
 	TimestampTo    time.Time
 	StartTime      time.Time

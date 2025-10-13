@@ -114,13 +114,13 @@ WHERE recordstamp > TIMESTAMP_MICROS(%d) AND recordstamp <= TIMESTAMP_MICROS(%d)
 QUALIFY ROW_NUMBER() OVER (PARTITION BY %s ORDER BY recordstamp DESC, operation_rank ASC) = 1 )`,
 			index,
 			fmt.Sprintf("`%s.%s.%s`", projectID, datasetID, table.TableID),
-			queryLogs.TimestampFrom.UnixMicro(),
-			queryLogs.TimestampTo.UnixMicro(),
+			queryLogs.From.UnixMicro(),
+			queryLogs.To.UnixMicro(),
 			strings.Join(table.Columns, ","),
 		), fmt.Sprintf(
 			"SELECT COUNT(*) AS effectedRowCount, %d AS fromTimestamp, %d AS toTimestamp, FROM latest_records_%d\n",
-			queryLogs.TimestampFrom.UnixMicro(),
-			queryLogs.TimestampTo.UnixMicro(),
+			queryLogs.From.UnixMicro(),
+			queryLogs.To.UnixMicro(),
 			index,
 		)
 }
