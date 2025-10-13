@@ -90,7 +90,9 @@ func GetChunkedQueries(projectID, datasetID string, table model.TableDetails, qu
 		selectQueries = append(selectQueries, selectQuery)
 	}
 
-	chunkQueries = append(chunkQueries, getCombinedIntervalRowCountQuery(cteQueries, selectQueries))
+	if len(cteQueries) > 0 {
+		chunkQueries = append(chunkQueries, getCombinedIntervalRowCountQuery(cteQueries, selectQueries))
+	}
 	return chunkQueries
 }
 
