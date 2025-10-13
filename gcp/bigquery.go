@@ -77,14 +77,8 @@ func GetChunkedQueries(projectID, datasetID string, table model.TableDetails, qu
 	for index, queryLog := range queryLogs {
 		cteQuery, selectQuery := getIntervalRowCountCteAndQuery(index, projectID, datasetID, table, queryLog)
 
-		queryLength := len(
-			getCombinedIntervalRowCountQuery(
-				append(cteQueries, cteQuery),
-				append(selectQueries, selectQuery),
-			),
-		)
-
-		if queryLength > model.QueryMaxLength {
+		subQueries := len(cteQueries) + 1
+		if subQueries > model.MaxSubQueries {
 			chunkQueries = append(chunkQueries, getCombinedIntervalRowCountQuery(cteQueries, selectQueries))
 
 			cteQueries = []string{cteQuery}
