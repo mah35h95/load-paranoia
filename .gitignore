@@ -1,3 +1,5 @@
 *.csv
+*.md
 *.xlsx
 !mise.toml
+!readme.md
