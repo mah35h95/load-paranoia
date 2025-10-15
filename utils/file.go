@@ -44,7 +44,13 @@ func GetQueryLogs(entries []model.Entry) []model.QueryLog {
 		}
 	}
 
-	return queryLogs
+	cleanQueryLogs := []model.QueryLog{}
+	for _, queryLog := range queryLogs {
+		if queryLog.From != queryLog.To {
+			cleanQueryLogs = append(cleanQueryLogs, queryLog)
+		}
+	}
+	return cleanQueryLogs
 }
 
 func extractFromAndToTimestamp(query string) (time.Time, time.Time) {
@@ -89,6 +95,17 @@ func CombineRowCount(queryLogs []model.QueryLog, intervalCounts []model.Interval
 			time.UnixMicro(queryLogs[i].StartTime.UnixMicro()).UTC().Format(time.DateTime),
 			time.UnixMicro(queryLogs[i].EndTime.UnixMicro()).UTC().Format(time.DateTime),
 		)
+
+		// combined += fmt.Sprintf(
+		// 	"%d,%d,%d,%s,%s,%d,%d\n",
+		// 	queryLogs[i].From.UnixMicro(),
+		// 	queryLogs[i].To.UnixMicro(),
+		// 	intervalCounts[i].EffectedRowCount.Int64,
+		// 	queryLogs[i].OutputRowCount,
+		// 	queryLogs[i].JobID,
+		// 	queryLogs[i].TimestampFrom.UnixMicro(),
+		// 	queryLogs[i].TimestampTo.UnixMicro(),
+		// )
 	}
 
 	return combined
