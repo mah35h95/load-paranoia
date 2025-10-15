@@ -10,6 +10,7 @@ import (
 	"cloud.google.com/go/bigquery"
 	"github.com/pkg/errors"
 	"google.golang.org/api/iterator"
+	"google.golang.org/api/option"
 )
 
 // BqClient - Holds BigQuery client and context
@@ -19,13 +20,13 @@ type BqClient struct {
 }
 
 // NewBigQueryClient - Creates and returns a new BigQuery client with context
-func NewBigQueryClient(project string) (*BqClient, error) {
+func NewBigQueryClient(project, keyFilePath string) (*BqClient, error) {
 	ctx := context.Background()
 
 	if project == "" {
 		return nil, errors.New("project ID is empty")
 	}
-	client, err := bigquery.NewClient(ctx, project)
+	client, err := bigquery.NewClient(ctx, project, option.WithCredentialsFile(keyFilePath))
 	if err != nil {
 		return nil, errors.Wrapf(err, "unable to create new bigquery client for %s", project)
 	}
