@@ -13,7 +13,7 @@ import (
 
 func main() {
 	fmt.Println("Paranoia eradicator starting...")
-	dbtProject := "prod-2763-entdatawh-bb5597"
+	dbtProject := "dev-2763-entdatawh-591612"
 	keyFilePath := "./.vscode/dbt-prod.json"
 
 	chunkSize := 5
